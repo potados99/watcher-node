@@ -1,12 +1,10 @@
 #include "Reporter.h"
 
-#include <ESP8266WiFi.h>
-
-WiFiManager manager;
+#include <WiFi.h>
 
 void Reporter::setup() {
-    WiFi.hostname("Watcher");
-    manager.autoConnect((mName + "_setup").c_str(), "potados");
+    WiFi.setHostname("Watcher");
+    mWifiManager.autoConnect("WatcherSetup", "potados90809");
 }
 
 void Reporter::emit(const char *event, bool value) {

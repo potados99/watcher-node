@@ -4,6 +4,8 @@
 #include <WiFiManager.h>
 
 class Reporter {
+private:
+    WiFiManager mWifiManager;
 public:
     void setup();
     

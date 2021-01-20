@@ -1,6 +1,6 @@
 #include "PowerManager.h"
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 float PowerManager::readVoltage(int pin) {
     return analogRead(pin)
