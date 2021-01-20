@@ -1,12 +1,5 @@
-//
-//  PowerManager.hpp
-//  watcher-node
-//
-//  Created by Potados on 2021/01/20.
-//
-
-#ifndef PowerManager_hpp
-#define PowerManager_hpp
+#ifndef PowerManager_h
+#define PowerManager_h
 
 class PowerManager {
 private:
@@ -16,7 +9,6 @@ private:
     int mUsbPin;
     
     float readVoltage(int pin);
-    int gpioAnalogRead(int pin);
     
 public:
     
@@ -29,4 +21,4 @@ public:
     float readUsbVoltage();
 };
 
-#endif /* PowerManager_hpp */
+#endif /* PowerManager_h */

@@ -1,8 +1,20 @@
-//
-//  io.cpp
-//  watcher-node
-//
-//  Created by Potados on 2021/01/20.
-//
+#include <stdio.h>
+#include <stdarg.h>
 
-#include "io.hpp"
+#include "IO.h"
+#include "Arduino.h"
+
+void IO::setup() {
+    Serial.begin(115200);
+}
+
+void IO::printf(const char *format, ...) {
+    char buf[128];
+    
+    va_list args;
+    va_start (args, format);
+    vsnprintf(buf, sizeof(buf)/sizeof(char), format, args);
+    va_end (args);
+    
+    Serial.print(buf);
+}

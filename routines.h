@@ -1,13 +1,14 @@
-//
-//  routines.hpp
-//  watcher-node
-//
-//  Created by Potados on 2021/01/20.
-//
+#ifndef routines_h
+#define routines_h
 
-#ifndef routines_hpp
-#define routines_hpp
+#include "types.h"
 
-#include <stdio.h>
+void setup();
+void loop();
 
-#endif /* routines_hpp */
+void dumpPowerStatus();
+void onDetectUsbDisconnection(callback action);
+void notifyUsbDisconnected();
+void reportStatus();
+
+#endif /* routines_h */

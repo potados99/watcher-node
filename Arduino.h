@@ -1,14 +1,10 @@
-#ifndef mock_h
-#define mock_h
+#ifndef arduino_h
+#define arduino_h
 
-#include <unistd.h>
+#ifdef ESP_PLATFORM
+#include <Arduino.h>
+#else
+#include "mock.h"
+#endif /* ESP_PLATFORM */
 
-static inline void delay(int millis) {
-    usleep(millis * 1000);
-}
-
-static inline int analogRead(int pin) {
-    return 2000;
-}
-
-#endif /* mock_h */
+#endif /* arduino_h */

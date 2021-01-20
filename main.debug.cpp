@@ -1,14 +1,13 @@
-//
-//  main.cpp
-//  watcher-node
-//
-//  Created by Potados on 2021/01/20.
-//
+#ifndef ESP_PLATFORM
 
-#include <iostream>
+#include "routines.h"
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
-    return 0;
+    setup();
+    
+    while (true) {
+        loop();
+    }
 }
+
+#endif

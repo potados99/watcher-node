@@ -1,12 +1,5 @@
-//
-//  io.hpp
-//  watcher-node
-//
-//  Created by Potados on 2021/01/20.
-//
-
-#ifndef io_hpp
-#define io_hpp
+#ifndef io_h
+#define io_h
 
 class IO {
 public:
@@ -14,4 +7,4 @@ public:
     static void printf(const char *format, ...);
 };
 
-#endif /* io_hpp */
+#endif /* io_h */
