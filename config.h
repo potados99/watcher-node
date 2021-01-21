@@ -13,7 +13,7 @@
 // Socket
 #define SOCKET_SERVER_HOST "10.0.1.10"
 #define SOCKET_SERVER_PORT 8080
-#define SOCKET_SERVER_PATH "/socket.io"
-#define HEARTBEAT_INTERVAL 5
+#define SOCKET_SERVER_PATH "/socket.io/?EIO=4"
+#define HEARTBEAT_INTERVAL 5000
 
 #endif /* config_h */

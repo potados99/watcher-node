@@ -1,11 +1,12 @@
 #include "IO.h"
 #include "config.h"
-#include "Arduino.h"
 #include "Reporter.h"
 #include "PowerManager.h"
 
 #include "utils/Task.h"
 #include "utils/Detector.h"
+
+#include <Arduino.h>
 
 PowerManager pm(PIN_BAT, PIN_USB, VOLTAGE_COMPENSATION);
 Reporter reporter(SOCKET_SERVER_HOST, SOCKET_SERVER_PORT, SOCKET_SERVER_PATH);
@@ -15,6 +16,8 @@ Task dumpPowerStatusTask;
 
 void setup() {
     IO::setup();
+            // TODO
+    Serial.setDebugOutput(true);
 
     dumpPowerStatusTask.runOnEvery(1, []() {
         IO::printf("Battery: %fv (%i%%), ", pm.readBatteryVoltage(), pm.readBatteryPercentage());

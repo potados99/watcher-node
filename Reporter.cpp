@@ -1,8 +1,10 @@
 #include "Reporter.h"
 
-#include <WebSocketsClient.h>
 #include <WiFi.h>
 #include <WiFiManager.h>
+
+#include <WebSocketsClient.h> // This must be before SocketIOclient.h!
+#include <SocketIOclient.h>
 
 #include "IO.h"
 #include "config.h"
@@ -10,7 +12,7 @@
 class Reporter::Impl {
 private:
     WiFiManager wifiManager;
-    WebSocketsClient webSocket;
+    SocketIOclient socketIO;
 
     // WebSocket configutations
     const char *host;
@@ -18,23 +20,32 @@ private:
     const char *path;
 
     // Status
-    bool isConnected = false;
     unsigned long lastHeartBeat = 0;
 
-    void handleWebSocketEvent(WStype_t type, uint8_t *payload, size_t lenght) {
+    void handleWebSocketEvent(socketIOmessageType_t type, uint8_t *payload, size_t length) {
         switch (type) {
-            case WStype_CONNECTED:
-                isConnected = true;
-                IO::printf("WebSocket connected.\n");
-                webSocket.sendTXT("5");  // socket.io upgrade confirmation message (required)
+            case sIOtype_DISCONNECT:
+                IO::printf("Socket.io disconnected!\n");
                 break;
-
-            case WStype_DISCONNECTED:
-                isConnected = false;
-                IO::printf("WebSocket disconnected.\n");
+            case sIOtype_CONNECT:
+                IO::printf("Socket.io connected!\n");
+                socketIO.send(sIOtype_CONNECT, "/"); // join default namespace (no auto join in Socket.IO V3)
                 break;
-
-            default: break;
+            case sIOtype_EVENT:
+                IO::printf("Socket.io got event\n");
+                break;
+            case sIOtype_ACK:
+                IO::printf("Socket.io got ack\n");
+                break;
+            case sIOtype_ERROR:
+                IO::printf("Socket.io got error\n");
+                break;
+            case sIOtype_BINARY_EVENT:
+                IO::printf("Socket.io got binary\n");
+                break;
+            case sIOtype_BINARY_ACK:
+                IO::printf("Socket.io got binary ack\n");
+                break;
         }
     }
 
@@ -53,35 +64,18 @@ public:
     void connectSocket() {
         IO::printf("Connecting websocket...\n");
 
-        webSocket.beginSocketIO(host, port, path);
-        webSocket.onEvent([&](WStype_t type, uint8_t *payload, size_t lenght) {
+        socketIO.begin(host, port, path);
+        socketIO.onEvent([&](socketIOmessageType_t type, uint8_t *payload, size_t lenght) {
             handleWebSocketEvent(type, payload, lenght);
         });
     }
 
     void emit(String event, String payload) {
-        if (!isConnected) {
-            return;
-        }
-        
-        webSocket.sendTXT("42[\"" + event + "\", " + payload + "]");
+        socketIO.sendEVENT("[\"" + event + "\", " + payload + "]");
     }
 
     void loop() {
-        webSocket.loop();
-
-        if (!isConnected) {
-            return;
-        }
-
-        auto now = millis();
-
-        if ((now - lastHeartBeat) > HEARTBEAT_INTERVAL) {
-            webSocket.sendTXT("2");  // socket.io heartbeat message
-            IO::printf("Heart beat!\n");
-
-            lastHeartBeat = now;
-        }
+        socketIO.loop();
     }
 };
 
