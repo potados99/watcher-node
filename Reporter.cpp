@@ -4,6 +4,7 @@
 #include <WiFi.h>
 #include <WiFiManager.h>
 
+#include "IO.h"
 #include "config.h"
 
 class Reporter::Impl {
@@ -24,11 +25,13 @@ private:
         switch (type) {
             case WStype_CONNECTED:
                 isConnected = true;
+                IO::printf("WebSocket connected.\n");
                 webSocket.sendTXT("5");  // socket.io upgrade confirmation message (required)
                 break;
 
             case WStype_DISCONNECTED:
                 isConnected = false;
+                IO::printf("WebSocket disconnected.\n");
                 break;
 
             default: break;
@@ -43,11 +46,13 @@ public:
     }
 
     void setupWiFi() {
-        WiFi.setHostname(NODE_NAME);
+        wifiManager.setHostname(NODE_NAME);
         wifiManager.autoConnect(NODE_NAME "Setup", SETUP_PASSWORD);
     }
 
     void connectSocket() {
+        IO::printf("Connecting websocket...\n");
+
         webSocket.beginSocketIO(host, port, path);
         webSocket.onEvent([&](WStype_t type, uint8_t *payload, size_t lenght) {
             handleWebSocketEvent(type, payload, lenght);
@@ -73,6 +78,8 @@ public:
 
         if ((now - lastHeartBeat) > HEARTBEAT_INTERVAL) {
             webSocket.sendTXT("2");  // socket.io heartbeat message
+            IO::printf("Heart beat!\n");
+
             lastHeartBeat = now;
         }
     }
