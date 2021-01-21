@@ -16,8 +16,6 @@ Task dumpPowerStatusTask;
 
 void setup() {
     IO::setup();
-            // TODO
-    Serial.setDebugOutput(true);
 
     dumpPowerStatusTask.runOnEvery(1, []() {
         IO::printf("Battery: %fv (%i%%), ", pm.readBatteryVoltage(), pm.readBatteryPercentage());
@@ -35,7 +33,7 @@ void setup() {
 
     usbConnectionDetector.onChange([](bool connected) {
         IO::printf("Usb connection lost!!\n");
-        reporter.emit("usb-connection", false);
+        reporter.emit("usb-connection", connected ? "true" : "false");
     });
 
     reporter.setup();

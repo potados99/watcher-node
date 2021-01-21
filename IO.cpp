@@ -6,6 +6,7 @@
 
 void IO::setup() {
     Serial.begin(115200);
+    Serial.setDebugOutput(true);
 }
 
 void IO::printf(const char *format, ...) {
