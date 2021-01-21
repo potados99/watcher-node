@@ -10,7 +10,8 @@
             ],
             "forcedInclude": [],
             "defines": [
-                "USBCON"
+                "USBCON",
+                "ESP32"
             ],
             "macFrameworkPath": [
                 "/System/Library/Frameworks",

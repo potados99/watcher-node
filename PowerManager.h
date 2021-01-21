@@ -1,20 +1,14 @@
 #ifndef PowerManager_h
 #define PowerManager_h
 
-#include "config.h"
-
 class PowerManager {
 private:
-    float mVoltageCompensation = VOLTAGE_COMPENSATION;
-    
-    int mBatteryPin;
-    int mUsbPin;
-    
-    float readVoltage(int pin);
+    class Impl;
+    Impl *impl;
     
 public:
-    
-    PowerManager(int batteryPin, int usbPin): mBatteryPin(batteryPin), mUsbPin(usbPin) {}
+    PowerManager(int batteryPin, int usbPin, float voltageCompensation);
+    ~PowerManager();
     
     float readBatteryVoltage();
     int readBatteryPercentage();

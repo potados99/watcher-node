@@ -1,25 +1,34 @@
-#include "routines.h"
-
 #include "IO.h"
+#include "config.h"
 #include "Arduino.h"
+#include "Reporter.h"
 #include "PowerManager.h"
 
-PowerManager pm(35/*Battery*/, 34/*USB*/);
+#include "utils/Detector.h"
 
-bool usbConnected = false;
+
+PowerManager pm(PIN_BAT, PIN_USB, VOLTAGE_COMPENSATION);
+Detector<bool> usbConnectionDetector;
+Reporter reporter(SOCKET_SERVER_HOST, SOCKET_SERVER_PORT, SOCKET_SERVER_PATH);
 
 void setup() {
     IO::setup();
+
+    usbConnectionDetector.watch([]() {
+        return pm.isUsbPowered();
+    });
+
+    usbConnectionDetector.onChange([](bool connected) {
+        IO::printf("Usb connection lost!!\n");
+        reporter.emit("usb-connection", false);
+    });
+
+    reporter.setup();
 }
 
-void loop() {
-    dumpPowerStatus();
-    
-    onDetectUsbDisconnection(notifyUsbDisconnected);
-    
-    reportStatus();
-    
-    delay(1000);
+void loop() {            
+    reporter.loop();
+    usbConnectionDetector.loop();
 }
 
 void dumpPowerStatus() {
@@ -30,23 +39,4 @@ void dumpPowerStatus() {
     } else {
         IO::printf("USB disconnected.\n");
     }
-}
-
-void onDetectUsbDisconnection(callback action) {
-    bool wasConnected = usbConnected;
-    bool currentlyConnected = pm.isUsbPowered();
-    
-    if (wasConnected && !currentlyConnected) {
-        action();
-    }
-    
-    usbConnected = currentlyConnected;
-}
-
-void notifyUsbDisconnected() {
-    IO::printf("Usb connection lost!!\n");
-}
-
-void reportStatus() {
-    // 
 }

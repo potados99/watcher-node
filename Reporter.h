@@ -7,14 +7,14 @@ private:
     Impl *impl;
 
 public:    
-    Reporter();
+    Reporter(const char *host, int port, const char *path);
     ~Reporter();
     
     void setup();
     
-    void emit(String event, bool value);
-    void emit(String event, int value);
-    void emit(String event, String value);
+    void emit(const char *event, bool value);
+    void emit(const char *event, int value);
+    void emit(const char *event, const char *value);
 
     void loop();
 };

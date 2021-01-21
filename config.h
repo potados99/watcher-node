@@ -1,7 +1,9 @@
 #ifndef config_h
 #define config_h
 
-// Battery
+// Power management
+#define PIN_BAT 35
+#define PIN_USB 34
 #define VOLTAGE_COMPENSATION 1.086
 
 // Network
