@@ -1,9 +1,11 @@
 #ifndef PowerManager_h
 #define PowerManager_h
 
+#include "config.h"
+
 class PowerManager {
 private:
-    float mVoltageCompensation = 1.086;
+    float mVoltageCompensation = VOLTAGE_COMPENSATION;
     
     int mBatteryPin;
     int mUsbPin;

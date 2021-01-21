@@ -1,8 +1,8 @@
+#include "IO.h"
+
+#include <Arduino.h>
 #include <stdio.h>
 #include <stdarg.h>
-
-#include "IO.h"
-#include "Arduino.h"
 
 void IO::setup() {
     Serial.begin(115200);

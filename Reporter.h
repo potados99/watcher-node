@@ -1,16 +1,22 @@
 #ifndef Reporter_h
 #define Reporter_h
 
-#include <WiFiManager.h>
-
 class Reporter {
 private:
-    WiFiManager mWifiManager;
-public:
+    class Impl;
+    Impl *impl;
+
+public:    
+    Reporter();
+    ~Reporter();
+    
     void setup();
     
-    void emit(const char *event, bool value);
-    void emit(const char *event, int value);
+    void emit(String event, bool value);
+    void emit(String event, int value);
+    void emit(String event, String value);
+
+    void loop();
 };
 
 #endif /* Reporter_h */
