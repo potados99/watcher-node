@@ -17,6 +17,13 @@ public:
     void emit(const char *event, float value);
     void emit(const char *event, const char *fmt, ...);
 
+    void updateProp(const char *propName, bool propValue);
+    void updateProp(const char *propName, int propValue);
+    void updateProp(const char *propName, float propValue);
+    void updateProp(const char *propName, const char *propValue);
+
+    void onUpdateRequest(void (*action)(void));
+
     void loop();
 };
 

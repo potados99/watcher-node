@@ -19,35 +19,43 @@ private:
     int port;
     const char *path;
 
-    // Status
-    unsigned long lastHeartBeat = 0;
+    // Invoked when server wants a realtime data.
+    void (*updateRequestCallback)(void);
+
+    void handleDisconnect() {
+        Serial.printf("Socket.io disconnected!\n");
+    }
+
+    void handleConnect() {
+        Serial.printf("Socket.io connected!\n");
+        socketIO.send(sIOtype_CONNECT, SOCKET_NAMESPACE);
+    }
+
+    void launchUpdateRequestCallback() {
+        Serial.printf("Server wants an update!\n");
+
+        if (updateRequestCallback) {
+            updateRequestCallback();
+        }
+    }
+
+    void handleEvent(uint8_t *payload) {
+        Serial.printf("Socket.io got event\n");
+
+        bool serverWantsUpdate = String((const char *)payload).indexOf("\"request:update\"") > 0;
+        
+        if (serverWantsUpdate) {
+            launchUpdateRequestCallback();
+        } 
+    }
 
     void handleWebSocketEvent(socketIOmessageType_t type, uint8_t *payload, size_t length) {
         switch (type) {
-            case sIOtype_DISCONNECT:
-                Serial.printf("Socket.io disconnected!\n");
-                break;
-            case sIOtype_CONNECT:
-                Serial.printf("Socket.io connected!\n");
-
-                // Join /node namespace.
-                socketIO.send(sIOtype_CONNECT, SOCKET_NAMESPACE);
-                break;
-            case sIOtype_EVENT:
-                Serial.printf("Socket.io got event\n");
-                break;
-            case sIOtype_ACK:
-                Serial.printf("Socket.io got ack\n");
-                break;
-            case sIOtype_ERROR:
-                Serial.printf("Socket.io got error\n");
-                break;
-            case sIOtype_BINARY_EVENT:
-                Serial.printf("Socket.io got binary\n");
-                break;
-            case sIOtype_BINARY_ACK:
-                Serial.printf("Socket.io got binary ack\n");
-                break;
+            case sIOtype_DISCONNECT: return handleDisconnect();
+            case sIOtype_CONNECT: return handleConnect();
+            case sIOtype_EVENT: return handleEvent(payload);
+            
+            default: Serial.printf("Message type: %d\n", sIOtype_ACK); break;
         }
     }
 
@@ -72,8 +80,12 @@ public:
         });
     }
 
-    void emit(String event, String payload) {
+    void emitEvent(String event, String payload) {
         socketIO.sendEVENT(SOCKET_NAMESPACE ",[\"" + event + "\", " + payload + "]");
+    }
+
+    void onUpdateRequest(void (*action)(void)) {
+        updateRequestCallback = action;
     }
 
     void loop() {
@@ -90,15 +102,15 @@ void Reporter::setup() {
 }
 
 void Reporter::emit(const char *event, bool value) {
-    impl->emit(event, String(value));
+    impl->emitEvent(event, String(value));
 }
 
 void Reporter::emit(const char *event, int value) {
-    impl->emit(event, String(value));
+    impl->emitEvent(event, String(value));
 }
 
 void Reporter::emit(const char *event, float value) {
-    impl->emit(event, String(value));
+    impl->emitEvent(event, String(value));
 }
 
 void Reporter::emit(const char *event, const char *fmt, ...) { 
@@ -109,7 +121,27 @@ void Reporter::emit(const char *event, const char *fmt, ...) {
     vsnprintf(buf, sizeof(buf)/sizeof(char), fmt, args);
     va_end (args);
 
-    impl->emit(event, buf); 
+    impl->emitEvent(event, buf); 
+}
+
+void Reporter::updateProp(const char *propName, bool propValue) {
+    emit("prop:update", "{\"name\": \"%s\", \"value\": %s}", propName, propValue ? "true" : "false");
+}
+
+void Reporter::updateProp(const char *propName, int propValue) {
+    emit("prop:update", "{\"name\": \"%s\", \"value\": %d}", propName, propValue);
+}
+
+void Reporter::updateProp(const char *propName, float propValue) {
+    emit("prop:update", "{\"name\": \"%s\", \"value\": %f}", propName, propValue);
+}
+
+void Reporter::updateProp(const char *propName, const char *propValue) {
+    emit("prop:update", "{\"name\": \"%s\", \"value\": \"%s\"}", propName, propValue);
+}
+
+void Reporter::onUpdateRequest(void (*action)(void)) {
+    impl->onUpdateRequest(action);
 }
 
 void Reporter::loop() { 

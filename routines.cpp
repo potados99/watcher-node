@@ -18,6 +18,12 @@ void setup() {
     Serial.begin(115200);
     reporter.setup();
 
+    reporter.onUpdateRequest([]() {
+        reporter.updateProp("usb:connected", powerManager.isUsbPowered());
+        reporter.updateProp("battery:voltage", powerManager.readBatteryVoltage());
+        reporter.updateProp("battery:percentage", powerManager.readBatteryPercentage());
+    });
+
     dumpPowerStatusTask.runOnEverySecond(1, []() {
         Serial.printf("Battery: %fv (%i%%), ", powerManager.readBatteryVoltage(), powerManager.readBatteryPercentage());
         
@@ -28,8 +34,9 @@ void setup() {
         }
     });
 
-    reportBatteryTask.runOnEverySecond(5, []() {
-        reporter.emit("battery", "{\"voltage\": %f, \"percentage\": %d}", powerManager.readBatteryVoltage(), powerManager.readBatteryPercentage());
+    reportBatteryTask.runOnEverySecond(10, []() {
+        reporter.updateProp("battery:voltage", powerManager.readBatteryVoltage());
+        reporter.updateProp("battery:percentage", powerManager.readBatteryPercentage());
     });
 
     usbConnectionDetector.watch([]() {
@@ -39,7 +46,7 @@ void setup() {
     usbConnectionDetector.onChange([](bool connected) {
         Serial.printf("USB connected: %s\n", connected ? "true" : "false");
 
-        reporter.emit("usb:connected", connected ? "true" : "false");
+        reporter.updateProp("usb:connected", connected);
     });
 }
 
