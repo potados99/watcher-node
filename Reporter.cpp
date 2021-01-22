@@ -1,12 +1,12 @@
 #include "Reporter.h"
 
+#include <stdio.h>
+#include <stdarg.h>
 #include <WiFi.h>
 #include <WiFiManager.h>
-
 #include <WebSocketsClient.h> // This must be before SocketIOclient.h!
 #include <SocketIOclient.h>
 
-#include "IO.h"
 #include "config.h"
 
 class Reporter::Impl {
@@ -25,26 +25,28 @@ private:
     void handleWebSocketEvent(socketIOmessageType_t type, uint8_t *payload, size_t length) {
         switch (type) {
             case sIOtype_DISCONNECT:
-                IO::printf("Socket.io disconnected!\n");
+                Serial.printf("Socket.io disconnected!\n");
                 break;
             case sIOtype_CONNECT:
-                IO::printf("Socket.io connected!\n");
-                socketIO.send(sIOtype_CONNECT, "/"); // join default namespace (no auto join in Socket.IO V3)
+                Serial.printf("Socket.io connected!\n");
+
+                // Join /node namespace.
+                socketIO.send(sIOtype_CONNECT, SOCKET_NAMESPACE);
                 break;
             case sIOtype_EVENT:
-                IO::printf("Socket.io got event\n");
+                Serial.printf("Socket.io got event\n");
                 break;
             case sIOtype_ACK:
-                IO::printf("Socket.io got ack\n");
+                Serial.printf("Socket.io got ack\n");
                 break;
             case sIOtype_ERROR:
-                IO::printf("Socket.io got error\n");
+                Serial.printf("Socket.io got error\n");
                 break;
             case sIOtype_BINARY_EVENT:
-                IO::printf("Socket.io got binary\n");
+                Serial.printf("Socket.io got binary\n");
                 break;
             case sIOtype_BINARY_ACK:
-                IO::printf("Socket.io got binary ack\n");
+                Serial.printf("Socket.io got binary ack\n");
                 break;
         }
     }
@@ -62,7 +64,7 @@ public:
     }
 
     void connectSocket() {
-        IO::printf("Connecting websocket...\n");
+        Serial.printf("Connecting websocket...\n");
 
         socketIO.begin(host, port, path);
         socketIO.onEvent([&](socketIOmessageType_t type, uint8_t *payload, size_t lenght) {
@@ -71,7 +73,7 @@ public:
     }
 
     void emit(String event, String payload) {
-        socketIO.sendEVENT("[\"" + event + "\", " + payload + "]");
+        socketIO.sendEVENT(SOCKET_NAMESPACE ",[\"" + event + "\", " + payload + "]");
     }
 
     void loop() {
@@ -95,8 +97,19 @@ void Reporter::emit(const char *event, int value) {
     impl->emit(event, String(value));
 }
 
-void Reporter::emit(const char *event, const char *value) { 
-    impl->emit(event, value); 
+void Reporter::emit(const char *event, float value) {
+    impl->emit(event, String(value));
+}
+
+void Reporter::emit(const char *event, const char *fmt, ...) { 
+    char buf[128];
+    
+    va_list args;
+    va_start (args, fmt);
+    vsnprintf(buf, sizeof(buf)/sizeof(char), fmt, args);
+    va_end (args);
+
+    impl->emit(event, buf); 
 }
 
 void Reporter::loop() { 

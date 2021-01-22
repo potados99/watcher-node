@@ -10,7 +10,7 @@ private:
     int intervalMillis;
 
 public:
-    void runOnEvery(int seconds, void (*action)(void)) {
+    void runOnEverySecond(int seconds, void (*action)(void)) {
         intervalMillis = seconds * 1000;
         task = action;
     }

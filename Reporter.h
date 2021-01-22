@@ -14,7 +14,8 @@ public:
     
     void emit(const char *event, bool value);
     void emit(const char *event, int value);
-    void emit(const char *event, const char *value);
+    void emit(const char *event, float value);
+    void emit(const char *event, const char *fmt, ...);
 
     void loop();
 };

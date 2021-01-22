@@ -22,6 +22,7 @@
         "unordered_map": "cpp",
         "unordered_set": "cpp",
         "vector": "cpp",
-        "cstdio": "cpp"
+        "cstdio": "cpp",
+        "mutex": "cpp"
     }
 }
