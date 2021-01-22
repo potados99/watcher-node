@@ -2,11 +2,15 @@
 
 #include <Arduino.h>
 
+#include "utils/RunningAverageFilter.h"
+
 class PowerManager::Impl {
 private:
     int batteryPin;
     int usbPin;
     float voltageCompensation;
+    RunningAverageFilter<float> batteryVoltageFilter;
+    RunningAverageFilter<float> usbVoltageFilter;
 
     float readVoltage(int pin) {
         return analogRead(pin) 
@@ -23,17 +27,17 @@ public:
     }
 
     float readBatteryVoltage() { 
-        return readVoltage(batteryPin); 
+        return batteryVoltageFilter.filter(readVoltage(batteryPin)); 
     }
 
     float readUsbVoltage() { 
-        return readVoltage(usbPin); 
+        return usbVoltageFilter.filter(readVoltage(usbPin)); 
     }
 
     int readBatteryPercentage() {
         float voltage = readBatteryVoltage();
 
-        if (voltage >= 4.17) return 100;
+        if (voltage >= 4.20) return 100;
 
         if (voltage <= 3.50) return 0;
 
@@ -64,4 +68,10 @@ bool PowerManager::isUsbPowered() {
 
 float PowerManager::readUsbVoltage() { 
     return impl->readUsbVoltage(); 
+}
+
+void PowerManager::loop() {
+    // This increases accuracy in measure value.
+    readBatteryVoltage();
+    readUsbVoltage();
 }

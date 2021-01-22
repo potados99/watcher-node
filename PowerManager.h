@@ -15,6 +15,8 @@ public:
     
     bool isUsbPowered();
     float readUsbVoltage();
+
+    void loop();
 };
 
 #endif /* PowerManager_h */

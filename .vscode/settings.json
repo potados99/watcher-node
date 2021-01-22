@@ -23,6 +23,7 @@
         "unordered_set": "cpp",
         "vector": "cpp",
         "cstdio": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "type_traits": "cpp"
     }
 }

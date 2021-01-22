@@ -34,7 +34,7 @@ void setup() {
         }
     });
 
-    reportBatteryTask.runOnEverySecond(10, []() {
+    reportBatteryTask.runOnEverySecond(60, []() {
         reporter.updateProp("battery:voltage", powerManager.readBatteryVoltage());
         reporter.updateProp("battery:percentage", powerManager.readBatteryPercentage());
     });
@@ -52,6 +52,7 @@ void setup() {
 
 void loop() {            
     reporter.loop();
+    powerManager.loop();
 
     dumpPowerStatusTask.loop();
     reportBatteryTask.loop();
